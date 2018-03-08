@@ -5,23 +5,55 @@ var LocalStrategy = require('passport-local').Strategy;
 
 var User = require('../models/user');
 
+//
+router.get('/register', ensureAuthenticated2,function(req, res){
 
-
-// Register
-router.get('/register', function(req, res){
-	res.render('register');
 });
+function ensureAuthenticated2(req, res, next){
+    if(req.isAuthenticated()){
+        res.redirect('/users/dashboard');
+    } else {
+        res.render('register');
+    }
+}
+
 
 // Login
-router.get('/login', function(req, res){
-	res.render('login');
+router.get('/login', ensurelog,function(req, res){
+	res.redirect('dashboard');
 });
+
+
+function ensurelog(req, res, next){
+	if(req.isAuthenticated()){
+		return next();
+	} else {
+		console.log('chutiya');
+		res.render('login');
+	}
+}
+
 
 
 //Dashboard
-router.get('/dashboard',function (req,res) {
-	res.render('dashboard')
-})
+router.get(
+    '/dashboard',ensureAuthenticated,function(req, res) {
+		res.render('dashboard',{welcome_msg:req.user.email});
+	
+
+
+
+	});
+	
+function ensureAuthenticated(req, res, next){
+	if(req.isAuthenticated()){
+		return next();
+	} else {
+		//req.flash('error_msg','You are not logged in');
+		res.redirect('/users/login');
+	}
+}
+
 
 
 // Register User
@@ -60,7 +92,7 @@ console.log("hello")
 
 	if(errors)
 	{
-        console.log("gand mar gayi")
+       
 		res.render('register',{
 			errors:errors
 
@@ -112,6 +144,7 @@ passport.use(new LocalStrategy(
    		}
    	});
    });
+
   }));
 
 passport.serializeUser(function(user, done) {
@@ -127,12 +160,13 @@ passport.deserializeUser(function(id, done) {
 router.post('/login',
   passport.authenticate('local', {successRedirect:'./dashboard', failureRedirect:'/users/login',failureFlash: true}),
   function(req, res) {
-    res.redirect('/login');
+	res.redirect('/login');
+	
   });
 
 router.get('/logout', function(req, res){
 	req.logout();
-
+console.log('fuddu')
 	req.flash('success_msg', 'You are logged out');
 
 	res.redirect('/users/login');

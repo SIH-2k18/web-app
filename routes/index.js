@@ -3,8 +3,8 @@ var router = express.Router();
 
 // Get Homepage
 
-router.get('/', function(req, res){
-	res.render('index');
+router.get('/', ensureAuthenticated,function(req, res){
+	res.render('index',{name1:req.user.name});
 });
 
 function ensureAuthenticated(req, res, next){
@@ -12,8 +12,9 @@ function ensureAuthenticated(req, res, next){
 		return next();
 	} else {
 		//req.flash('error_msg','You are not logged in');
-		res.redirect('/users/login');
+		res.render('index',{name1:"ULB Login"})
 	}
 }
+
 
 module.exports = router;

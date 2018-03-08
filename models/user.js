@@ -1,18 +1,24 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
+var uniquevalidator = require('mongoose-unique-validator');
 
 
 // User Schema
 var UserSchema = mongoose.Schema({
 	username: {
 		type: String,
-		index:true
+		index:true,
+		match: [/^[a-zA-Z0-9]+$/, 'is invalid'],
+		unique:true
+
 	},
 	password: {
 		type: String
 	},
 	email: {
 		type: String
+		,
+		unique:true
 	},
 	name: {
 		type: String
@@ -38,6 +44,9 @@ var UserSchema = mongoose.Schema({
 });
 
 var User = module.exports = mongoose.model('User', UserSchema);
+UserSchema.plugin(uniquevalidator, {message: 'is already taken.'});
+
+
 
 module.exports.createUser = function(newUser, callback){
 	bcrypt.genSalt(10, function(err, salt) {
